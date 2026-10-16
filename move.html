@@ -5,33 +5,34 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Déplacer les cartes</title>
   <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #172b4d; }
-    body { margin: 0; padding: 16px; background: #fff; font-size: 14px; }
-    h1 { font-size: 16px; margin: 0 0 12px; }
-    p { margin: 10px 0; }
-    label { display: block; font-weight: 600; margin-bottom: 6px; }
-    select,button { font: inherit; box-sizing: border-box; width: 100%; border-radius: 5px; padding: 9px; }
-    select { border: 1px solid #8590a2; background: #fff; }
-    button { background: #0c66e4; border: 0; color: #fff; font-weight: 600; cursor: pointer; margin-top: 12px; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    .secondary { background: #dfe1e6; color: #172b4d; }
-    .muted { color: #596579; font-size: 12px; }
-    .status { min-height: 18px; margin-top: 12px; font-size: 13px; }
-    .error { color: #ae2e24; }
-    .success { color: #216e4e; }
+    :root { font-family: system-ui,-apple-system,Segoe UI,sans-serif; color:#172b4d; color-scheme:light; }
+    body { margin:0; padding:16px; background:white; font-size:14px; }
+    h1 { font-size:16px; margin:0 0 14px; }
+    p { margin:10px 0; }
+    label { display:block; font-weight:600; margin:12px 0 6px; }
+    select,button { font:inherit; box-sizing:border-box; width:100%; border-radius:5px; padding:9px; }
+    select { border:1px solid #8590a2; background:#fff; }
+    button { background:#0c66e4; border:0; color:white; font-weight:600; cursor:pointer; margin-top:14px; }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+    .muted { color:#596579; font-size:12px; }
+    .status { min-height:18px; margin-top:12px; font-size:13px; overflow-wrap:anywhere; }
+    .error { color:#ae2e24; }
+    .success { color:#216e4e; }
   </style>
 </head>
 <body>
-  <h1>Déplacer les cartes</h1>
-  <p class="muted" id="source">Chargement de la liste source…</p>
+  <h1>Déplacer toutes les cartes</h1>
+  <p class="muted">Choisis deux listes du tableau courant.</p>
   <div id="auth-block" hidden>
-    <p>Autorise List Mover à lire les listes et déplacer les cartes de ton tableau.</p>
+    <p>Autorise List Mover à lire tes listes et à déplacer les cartes.</p>
     <button type="button" id="authorize">Autoriser avec Trello</button>
   </div>
   <div id="move-block" hidden>
+    <label for="source">Liste source</label>
+    <select id="source"></select>
     <label for="target">Liste de destination</label>
     <select id="target"></select>
-    <p class="muted" id="count"></p>
+    <p class="muted" id="count" aria-live="polite"></p>
     <button type="button" id="move" disabled>Déplacer toutes les cartes</button>
   </div>
   <p class="status" id="status" role="status" aria-live="polite"></p>

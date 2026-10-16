@@ -1,22 +1,20 @@
 const config = window.LIST_MOVER_CONFIG;
-const t = window.TrelloPowerUp.iframe({
-  appKey: config.appKey,
-  appName: config.appName
-});
-
+const t = window.TrelloPowerUp.iframe({ appKey: config.appKey, appName: config.appName });
 const $ = (id) => document.getElementById(id);
 const authBlock = $('auth-block');
 const moveBlock = $('move-block');
-const authButton = $('authorize');
-const moveButton = $('move');
+const sourceSelect = $('source');
 const targetSelect = $('target');
+const moveButton = $('move');
+const authButton = $('authorize');
 const status = $('status');
 
 let apiClient;
-let sourceId;
 let boardId;
+let lists = [];
 let sourceCount = 0;
-let destinationIds = new Set();
+let countRequest = 0;
+let completed = false;
 
 function message(text, kind = '') {
   status.textContent = text;
@@ -32,37 +30,69 @@ async function request(path, { method = 'GET', params = {} } = {}) {
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
   const response = await fetch(url, { method });
   if (!response.ok) {
-    let detail = await response.text();
-    throw new Error(`Erreur Trello ${response.status}${detail ? ` : ${detail.slice(0,160)}` : ''}`);
+    const detail = await response.text();
+    throw new Error(`Erreur Trello ${response.status}${detail ? ` : ${detail.slice(0, 160)}` : ''}`);
   }
   if (response.status === 204) return null;
   const body = await response.text();
   return body ? JSON.parse(body) : null;
 }
 
-async function loadLists() {
-  message('Chargement…');
-  const lists = await request(`/boards/${encodeURIComponent(boardId)}/lists`, {
-    params: { fields: 'id,name', filter: 'open' }
-  });
-  const cards = await request(`/lists/${encodeURIComponent(sourceId)}/cards`, {
-    params: { fields: 'id', filter: 'open' }
-  });
-  sourceCount = cards.length;
-  const targets = lists.filter((item) => item.id !== sourceId);
-  destinationIds = new Set(targets.map((item) => item.id));
-  targetSelect.replaceChildren();
-  for (const list of targets) {
+function fillSelect(select, options) {
+  select.replaceChildren();
+  for (const list of options) {
     const option = document.createElement('option');
     option.value = list.id;
     option.textContent = list.name;
-    targetSelect.appendChild(option);
+    select.appendChild(option);
   }
-  $('count').textContent = `${sourceCount} carte(s) à déplacer`;
-  moveButton.disabled = !sourceCount || !targets.length;
-  moveBlock.hidden = false;
+}
+
+function refreshTargets() {
+  const previous = targetSelect.value;
+  const targets = lists.filter((list) => list.id !== sourceSelect.value);
+  fillSelect(targetSelect, targets);
+  if (targets.some((list) => list.id === previous)) targetSelect.value = previous;
+  void refreshCount();
+}
+
+async function refreshCount() {
+  const current = ++countRequest;
+  sourceCount = 0;
+  moveButton.disabled = true;
+  if (completed) return;
+  const sourceId = sourceSelect.value;
+  const destinationId = targetSelect.value;
+  if (!sourceId || !destinationId || sourceId === destinationId) {
+    $('count').textContent = lists.length < 2 ? 'Il faut au moins deux listes ouvertes.' : 'Sélectionne deux listes différentes.';
+    return;
+  }
+  $('count').textContent = 'Comptage des cartes…';
+  try {
+    const cards = await request(`/lists/${encodeURIComponent(sourceId)}/cards`, {
+      params: { fields: 'id', filter: 'open' }
+    });
+    if (current !== countRequest || completed) return;
+    sourceCount = cards.length;
+    $('count').textContent = `${sourceCount} carte(s) à déplacer`;
+    moveButton.disabled = sourceCount === 0;
+  } catch (error) {
+    if (current !== countRequest) return;
+    $('count').textContent = '';
+    message(error.message || 'Comptage impossible.', 'error');
+  }
+}
+
+async function loadLists() {
+  message('Chargement des listes…');
+  lists = await request(`/boards/${encodeURIComponent(boardId)}/lists`, {
+    params: { fields: 'id,name', filter: 'open' }
+  });
+  fillSelect(sourceSelect, lists);
   authBlock.hidden = true;
-  message(!sourceCount ? 'La liste source est vide.' : !targets.length ? 'Aucune autre liste disponible.' : '');
+  moveBlock.hidden = false;
+  message('');
+  refreshTargets();
 }
 
 async function checkAuthorization() {
@@ -77,7 +107,9 @@ async function checkAuthorization() {
   await loadLists();
 }
 
-// L'autorisation doit être déclenchée par un véritable clic utilisateur.
+sourceSelect.addEventListener('change', refreshTargets);
+targetSelect.addEventListener('change', () => { void refreshCount(); });
+
 authButton.addEventListener('click', async () => {
   authButton.disabled = true;
   try {
@@ -91,38 +123,40 @@ authButton.addEventListener('click', async () => {
 });
 
 moveButton.addEventListener('click', async () => {
+  const sourceId = sourceSelect.value;
   const destinationId = targetSelect.value;
-  if (!destinationIds.has(destinationId) || destinationId === sourceId) return;
-  const targetName = targetSelect.selectedOptions[0]?.textContent || 'la liste choisie';
-  if (!window.confirm(`Déplacer ${sourceCount} carte(s) vers « ${targetName} » ?`)) return;
+  if (completed || moveButton.disabled || sourceId === destinationId || !sourceCount ||
+      !lists.some((list) => list.id === sourceId) || !lists.some((list) => list.id === destinationId)) return;
+  const sourceName = sourceSelect.selectedOptions[0]?.textContent || 'Source';
+  const targetName = targetSelect.selectedOptions[0]?.textContent || 'Destination';
+  if (!window.confirm(`Déplacer toutes les cartes de « ${sourceName} » vers « ${targetName} » ? Cette action modifie le tableau.`)) return;
+  ++countRequest;
   moveButton.disabled = true;
+  sourceSelect.disabled = true;
   targetSelect.disabled = true;
   message('Déplacement en cours…');
   try {
-    // Une seule opération Trello déplace les cartes de la liste source.
     await request(`/lists/${encodeURIComponent(sourceId)}/moveAllCards`, {
       method: 'POST',
       params: { idBoard: boardId, idList: destinationId }
     });
-    message(`Déplacement terminé vers « ${targetName} ».`, 'success');
-    $('count').textContent = 'Les cartes ont été transférées.';
+    completed = true;
+    $('count').textContent = 'Transfert effectué.';
+    message(`Les cartes de « ${sourceName} » ont été déplacées vers « ${targetName} ».`, 'success');
   } catch (error) {
     message(error.message || 'Le déplacement a échoué.', 'error');
-    moveButton.disabled = false;
+    sourceSelect.disabled = false;
     targetSelect.disabled = false;
+    await refreshCount();
   }
 });
 
 (async function start() {
   try {
-    const context = t.getContext();
-    sourceId = context.list;
-    boardId = context.board;
-    if (!sourceId || !boardId) throw new Error('Ouvre le Power-Up depuis le menu d’une liste Trello.');
-    const source = await t.list('name');
-    $('source').textContent = `Source : ${source.name}`;
-    if (config.appKey === 'REMPLACEZ_PAR_VOTRE_CLE_API') {
-      throw new Error('Configure ta clé API Trello dans config.js.');
+    boardId = t.getContext().board;
+    if (!boardId) throw new Error('Ouvre cette fenêtre depuis un tableau Trello.');
+    if (!config.appKey || config.appKey === 'REMPLACEZ_PAR_VOTRE_CLE_API') {
+      throw new Error('Configure la clé API dans config.js.');
     }
     await checkAuthorization();
   } catch (error) {

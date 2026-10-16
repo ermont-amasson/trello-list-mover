@@ -1,14 +1,19 @@
 const config = window.LIST_MOVER_CONFIG;
+const base = new URL('.', window.location.href);
 window.TrelloPowerUp.initialize({
-  'list-actions': function (t) {
-    // Répondre immédiatement : cette capability a une limite de temps stricte.
+  'board-buttons': function () {
     return [{
-      text: 'Déplacer toutes les cartes…',
+      icon: {
+        dark: new URL('icon.svg', base).href,
+        light: new URL('icon.svg', base).href
+      },
+      text: 'Déplacer les cartes',
+      condition: 'edit',
       callback: function (t) {
         return t.popup({
           title: 'Déplacer toutes les cartes',
-          url: './move.html',
-          height: 330
+          url: new URL('move.html', base).href,
+          height: 390
         });
       }
     }];
