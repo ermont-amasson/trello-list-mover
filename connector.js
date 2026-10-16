@@ -57,6 +57,7 @@ window.TrelloPowerUp.initialize({
     return [
       {
         icon: { dark: iconUrl, light: iconUrl },
+        text: 'Settings',
         condition: 'edit',
         callback: openSettings
       },
