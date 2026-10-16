@@ -1,7 +1,7 @@
 const config = window.LIST_MOVER_CONFIG;
 const base = new URL('.', window.location.href);
 const settingsUrl = new URL('settings.html', base).href;
-const iconUrl = new URL('icon.svg', base).href;
+const iconUrl = new URL('settings.png', base).href;
 const activeRuns = new Set();
 
 async function api(t, path, method = 'GET', params = {}) {
@@ -57,12 +57,10 @@ window.TrelloPowerUp.initialize({
     return [
       {
         icon: { dark: iconUrl, light: iconUrl },
-        text: 'Configurer les listes',
         condition: 'edit',
         callback: openSettings
       },
       {
-        icon: { dark: iconUrl, light: iconUrl },
         text: saved?.label?.trim() || 'Déplacer les cartes',
         condition: 'edit',
         callback: execute
