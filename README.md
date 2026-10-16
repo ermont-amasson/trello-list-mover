@@ -14,7 +14,7 @@ Le nom du second bouton peut être personnalisé dans la configuration. Les para
 3. Dans GitHub, Settings → Pages, publier depuis `main` et `/(root)`.
 4. Dans https://trello.com/apps/admin, conserver l’Iframe Connector URL `https://PSEUDO.github.io/DEPOT/index.html`. Dans Trello Auth, autoriser l’origine `https://PSEUDO.github.io`.
 5. Activer la capability **board-buttons**, optionnellement **show-settings** (qui permet également d’ouvrir la configuration depuis le menu Power-Ups). Désactiver `list-actions`.
-6. Actualiser le tableau. Cliquer sur **Configurer les listes**, autoriser Trello si demandé, choisir les listes et enregistrer. Actualiser le tableau pour mettre à jour le libellé personnalisé du bouton d’action.
+6. Actualiser le tableau. Cliquer sur **Configurer les listes**, autoriser Trello si demandé, choisir les listes et enregistrer. Le bouton de déplacement reprend automatiquement le nom personnalisé après enregistrement. Si Trello garde une ancienne version en cache, actualiser le tableau.
 
 ## Comportement et précautions
 
@@ -25,3 +25,7 @@ Le nom du second bouton peut être personnalisé dans la configuration. Les para
 - La prévention des doubles clics est locale à chaque iframe et n’empêche pas des actions simultanées par plusieurs utilisateurs.
 - `theme.css` utilise les tokens Atlassian pour suivre le thème clair/sombre.
 - Tests : syntaxe JavaScript et cohérence des fichiers vérifiées ; test réel avec un tableau Trello non effectué.
+
+## Correction du libellé
+
+Après enregistrement, `settings.js` effectue une écriture de révision `quickMoveRevision` et ferme la fenêtre. Cela provoque normalement le recalcul de la capability `board-buttons` par Trello. Le nom reste stocké dans `quickMove.label`. Si Trello utilise un cache ancien, actualiser le tableau une fois.

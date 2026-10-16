@@ -2,14 +2,11 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Configurer List Mover</title>
 <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
 <link rel="stylesheet" href="./theme.css"></head><body>
-<h1>Configurer les listes</h1>
-<p class="muted">Définis la liste source et la destination. Le bouton « Déplacer les cartes » exécutera ensuite le transfert sans demander de confirmation.</p>
 <div id="auth-block" hidden><p>Autorise Trello pour charger les listes et exécuter l'action.</p><button id="authorize" type="button">Autoriser avec Trello</button></div>
 <form id="form" hidden>
-<label for="label">Nom du bouton de déplacement (facultatif)</label><input id="label" maxlength="40" required value="Déplacer les cartes" />
+<label for="label">Nom du bouton</label><input id="label" maxlength="40" required value="Déplacer les cartes" />
 <label for="source">Liste source</label><select id="source" required></select>
 <label for="target">Liste de destination</label><select id="target" required></select>
-<p class="muted">Le bouton « Déplacer les cartes » ne demandera pas de confirmation au clic. Évite de configurer ce bouton pour une liste où les cartes ne doivent pas être déplacées immédiatement.</p>
-<button id="save" type="submit">Enregistrer la configuration</button>
+<button id="save" type="submit">Enregistrer</button>
 </form><p id="status" role="status" aria-live="polite"></p>
 <script src="https://p.trellocdn.com/power-up.min.js"></script><script src="./config.js"></script><script src="./settings.js"></script></body></html>

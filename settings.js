@@ -64,7 +64,11 @@ el('form').addEventListener('submit',async event=>{
   el('save').disabled=true;
   try {
     await t.set('board','shared','quickMove',{label: label || 'Déplacer les cartes',sourceId,destinationId});
-    status('Configuration enregistrée. Actualise ton tableau si le nom du bouton ne change pas immédiatement.','success');
+    // Une écriture distincte garantit une modification des pluginData,
+    // ce qui demande à Trello de recalculer la capability board-buttons.
+    await t.set('board','shared','quickMoveRevision',new Date().toISOString());
+    status('Configuration enregistrée.','success');
+    await t.closePopup();
   } catch(error) { status(error.message || 'Enregistrement impossible.','error'); }
   finally { el('save').disabled=false; }
 });
