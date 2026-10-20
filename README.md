@@ -29,3 +29,7 @@ Le nom du second bouton peut être personnalisé dans la configuration. Les para
 ## Correction du libellé
 
 Après enregistrement, `settings.js` effectue une écriture de révision `quickMoveRevision` et ferme la fenêtre. Cela provoque normalement le recalcul de la capability `board-buttons` par Trello. Le nom reste stocké dans `quickMove.label`. Si Trello utilise un cache ancien, actualiser le tableau une fois.
+
+## Confirmation avant déplacement
+
+Le bouton de déplacement ouvre `confirm.html` qui affiche les noms des listes source et destination. `Annuler` ferme la fenêtre sans action. `Confirmer` lance `POST /lists/{id}/moveAllCards`. Ajouter également `confirm.html` et `confirm.js` à GitHub Pages. Le bouton de configuration est inchangé.

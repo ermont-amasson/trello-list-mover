@@ -79,3 +79,15 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 @media (prefers-reduced-motion: no-preference) {
   button { transition: background-color .12s ease; }
 }
+
+/* Confirmation */
+.confirm-actions { display: flex; gap: 8px; margin-top: 18px; }
+.confirm-actions button { flex: 1; margin-top: 0; }
+button.secondary {
+  background: var(--ds-background-neutral, #f1f2f4);
+  color: var(--ds-text, #172b4d);
+  border: 1px solid var(--ds-border, #dfe1e6);
+}
+button.secondary:hover:not(:disabled) {
+  background: var(--ds-background-neutral-hovered, #dcdfe4);
+}
