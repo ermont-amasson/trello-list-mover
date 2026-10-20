@@ -3,6 +3,7 @@ const cfg = window.LIST_MOVER_CONFIG;
 const baseUrl = new URL('.', location.href);
 const settingsUrl = new URL('settings.html', baseUrl).href;
 const iconUrl = new URL('icon.svg', baseUrl).href;
+const settingsIconUrl = new URL('settings.png', baseUrl).href;
 let moving = false;
 
 function openSettings(t) {
@@ -64,8 +65,8 @@ window.TrelloPowerUp.initialize({
   'board-buttons': async function(t) {
     const saved = await t.get('board', 'shared', 'quickMove', null);
     return [
-      {icon:{dark:iconUrl,light:iconUrl}, text:'Configurer les listes', condition:'edit', callback:openSettings},
-      {icon:{dark:iconUrl,light:iconUrl}, text:saved?.label?.trim() || 'Déplacer les cartes', condition:'edit', callback:openMoveConfirmation}
+      {icon:{dark:settingsIconUrl,light:settingsIconUrl}, text:'Settings', condition:'edit', callback:openSettings},
+      {text:saved?.label?.trim() || 'Move cards', condition:'edit', callback:openMoveConfirmation}
     ];
   },
   'show-settings': openSettings
