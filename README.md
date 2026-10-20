@@ -33,3 +33,12 @@ Après enregistrement, `settings.js` effectue une écriture de révision `quickM
 ## Confirmation avant déplacement
 
 Le bouton de déplacement ouvre `confirm.html` qui affiche les noms des listes source et destination. `Annuler` ferme la fenêtre sans action. `Confirmer` lance `POST /lists/{id}/moveAllCards`. Ajouter également `confirm.html` et `confirm.js` à GitHub Pages. Le bouton de configuration est inchangé.
+
+## Correctif : clic sur « Déplacer les cartes »
+
+La popup est désormais ouverte **immédiatement** dans le callback `board-buttons`.
+Dans les versions précédentes, les appels `t.get()` et `client.getToken()` effectués avant `t.popup()` pouvaient faire perdre le contexte de l’action dans Trello, empêchant l’ouverture.
+
+Après ouverture, `confirm.js` vérifie le tableau, les listes enregistrées et l’autorisation. Aucun transfert n’est effectué avant le clic explicite sur **Confirmer**.
+
+Si la popup ne s’affiche toujours pas après un nouveau déploiement, vérifier que `confirm.html` répond correctement sur GitHub Pages, rafraîchir Trello sans cache et consulter la console du navigateur.

@@ -8,17 +8,14 @@ function openSettings(t) {
   return t.popup({ title: 'Configurer List Mover', url: settingsUrl, height: 440 });
 }
 
-async function execute(t) {
-  const saved = await t.get('board', 'shared', 'quickMove', null);
-  if (!saved?.sourceId || !saved?.destinationId || saved.sourceId === saved.destinationId) {
-    return t.alert({ message: 'Configure les listes source et destination avant de lancer le déplacement.' });
-  }
-  const client = await t.getRestApi();
-  if (!(await client.getToken())) {
-    return t.alert({ message: 'Autorise Trello dans « Configurer les listes » avant le premier déplacement.' });
-  }
-  // L'action destructive n'est exécutée que dans confirm.js, après confirmation.
-  return t.popup({ title: 'Confirmer le déplacement', url: confirmationUrl, height: 280 });
+// Ouvrir la popup sans attente asynchrone : Trello a besoin du contexte du clic.
+// Les vérifications (configuration, token, listes) restent dans confirm.js.
+function execute(t) {
+  return t.popup({
+    title: 'Confirmer le déplacement',
+    url: confirmationUrl,
+    height: 280
+  });
 }
 
 window.TrelloPowerUp.initialize({
